@@ -15,8 +15,43 @@ import (
 func handler(logger *slog.Logger) func(msg *cdc.Message) []gokafka.Message {
 	return func(msg *cdc.Message) []gokafka.Message {
 		if msg.TableName == tableName {
-			if msg.Type.IsInsert() {
-				return userCreatedHandler(msg, logger)
+			var event *gen.ChangedEvent
+
+			switch msg.Type {
+			case cdc.InsertMessage:
+				event = userCreatedHandler(msg, logger)
+			case cdc.DeleteMessage:
+				event = userDeletedHandler(msg, logger)
+			default:
+				return []gokafka.Message{}
+			}
+
+			if nil == event {
+				return []gokafka.Message{}
+			}
+
+			val, err := proto.Marshal(event)
+			if err != nil {
+				logger.Error("failed to marshal event",
+					slog.String("id", event.Id),
+					slog.String("error", err.Error()),
+				)
+				return []gokafka.Message{}
+			}
+
+			fngpnt := ck.MessageTypeHeaderValue(event)
+
+			return []gokafka.Message{
+				{
+					Headers: []protocol.Header{
+						{
+							Key:   ck.MessageTypeHeaderKey,
+							Value: []byte(fngpnt),
+						},
+					},
+					Key:   []byte(event.Id),
+					Value: val,
+				},
 			}
 		}
 
@@ -24,10 +59,10 @@ func handler(logger *slog.Logger) func(msg *cdc.Message) []gokafka.Message {
 	}
 }
 
-func userCreatedHandler(msg *cdc.Message, logger *slog.Logger) []gokafka.Message {
+func userCreatedHandler(msg *cdc.Message, logger *slog.Logger) *gen.ChangedEvent {
 	l := logger.With(
 		slog.String("table", msg.TableName),
-		slog.String("table operation", "insert"),
+		slog.String("table operation", string(msg.Type)),
 	)
 
 	id, ok := msg.NewData["id"].(string)
@@ -35,36 +70,35 @@ func userCreatedHandler(msg *cdc.Message, logger *slog.Logger) []gokafka.Message
 		l.Error("invalid id format",
 			slog.Any("id", msg.NewData["id"]),
 		)
-		return []gokafka.Message{}
+		return nil
 	}
 
-	l.Info("change captured", slog.String("id", id))
+	l.Info("event received", slog.String("id", id))
 
-	event := &gen.UserCreatedEvent{
-		Id: id,
+	return &gen.ChangedEvent{
+		Id:         id,
+		ChangeType: gen.ChangeType_CHANGE_TYPE_CREATED,
 	}
+}
 
-	val, err := proto.Marshal(event)
-	if err != nil {
-		logger.Error("failed to marshal event",
-			slog.String("id", id),
-			slog.String("error", err.Error()),
+func userDeletedHandler(msg *cdc.Message, logger *slog.Logger) *gen.ChangedEvent {
+	l := logger.With(
+		slog.String("table", msg.TableName),
+		slog.String("table operation", string(msg.Type)),
+	)
+
+	id, ok := msg.OldData["id"].(string)
+	if !ok {
+		l.Error("invalid id format",
+			slog.Any("id", msg.NewData["id"]),
 		)
-		return []gokafka.Message{}
+		return nil
 	}
 
-	fngpnt := ck.MessageTypeHeaderValue(event)
+	l.Info("event received", slog.String("id", id))
 
-	return []gokafka.Message{
-		{
-			Headers: []protocol.Header{
-				{
-					Key:   ck.MessageTypeHeaderKey,
-					Value: []byte(fngpnt),
-				},
-			},
-			Key:   []byte(id),
-			Value: val,
-		},
+	return &gen.ChangedEvent{
+		Id:         id,
+		ChangeType: gen.ChangeType_CHANGE_TYPE_DELETED,
 	}
 }

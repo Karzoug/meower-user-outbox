@@ -1,5 +1,5 @@
-github.com/Karzoug/meower-common-go v1.0.4 h1:WlJn7MW397zjVrLd1k9ZdCqTc+PwgHg0NHXvE6K2rVo=
-github.com/Karzoug/meower-common-go v1.0.4/go.mod h1:UoFBG8Ld93xj1TGSEjEXLq0mSI4yIeFXhsYmmXojigA=
+github.com/Karzoug/meower-common-go v1.1.0 h1:50s7PxSmZ9UTrP/ek856lXZtrkW9TXtgMwLb04bE46Y=
+github.com/Karzoug/meower-common-go v1.1.0/go.mod h1:TNKOP3j5Rp3NA57XF4T5yvQe9Q1Mhln+0Tb8/LQjuxs=
 github.com/Trendyol/go-pq-cdc v0.0.8 h1:4cKIb4+Cu8gwIpn80rPdaIRtYWDO3RgREzavoqOuMkM=
 github.com/Trendyol/go-pq-cdc v0.0.8/go.mod h1:RIooS3DPOWkXxq7nhrOuGgkD4x3ondWEYOrOEHAHnxc=
 github.com/Trendyol/go-pq-cdc-kafka v0.0.4 h1:iTMpWNEtJykXcAfUyWQ3JAYCGnbTltjC8cBWkA3dLkU=

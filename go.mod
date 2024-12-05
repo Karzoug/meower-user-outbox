@@ -3,7 +3,7 @@ module github.com/Karzoug/meower-user-outbox
 go 1.23.3
 
 require (
-	github.com/Karzoug/meower-common-go v1.0.4
+	github.com/Karzoug/meower-common-go v1.1.0
 	github.com/Trendyol/go-pq-cdc v0.0.8
 	github.com/Trendyol/go-pq-cdc-kafka v0.0.4
 	github.com/caarlos0/env/v11 v11.2.2

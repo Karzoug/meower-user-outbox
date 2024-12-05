@@ -11,7 +11,7 @@ IMAGE                      := $(BASE_IMAGE)/user:$(SERVICE_VERSION)
 
 GOLANGCI_LINT_VERSION      := 1.61.0
 BUF_VERSION                := 1.46.0
-PROTOC_GEN_GO_VERSION 	   := 1.35.1
+PROTOC_GEN_GO_VERSION 	   := 1.35.2
 
 MAIN_PACKAGE_PATH          := ./cmd/
 BINARY_NAME                := user_outbox
